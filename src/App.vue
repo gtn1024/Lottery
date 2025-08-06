@@ -116,7 +116,7 @@ function end() {
           class="flex justify-center items-center"
           :class="config.title?.startsWith('http://') || config.title?.startsWith('https://') ? 'flex-row' : 'flex-col'"
         >
-          <div class="text-center mb-4 text-4xl">
+          <div v-if="config.logo" class="text-center mb-4 text-4xl">
             <img
               v-if="config.logo?.startsWith('http://') || config.logo?.startsWith('https://')"
               alt="logo"
@@ -125,7 +125,7 @@ function end() {
             >
             <span v-else>{{ config.logo }}</span>
           </div>
-          <div class="text-center mb-4 text-4xl">
+          <div v-if="config.title" class="text-center mb-4 text-4xl">
             <NImage
               v-if="config.title?.startsWith('http://') || config.title?.startsWith('https://')"
               alt="title"
