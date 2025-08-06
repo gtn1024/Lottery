@@ -7,6 +7,7 @@ import {
   NFormItem,
   NGrid,
   NGridItem,
+  NImage,
   NInput,
   NInputNumber,
   NModal,
@@ -20,12 +21,14 @@ const config = reactive({
   logo: 'LOGO',
   title: '抽奖名称',
   listString: '',
+  excludeString: '',
   count: 5,
 })
 const tempConfig = ref({
   logo: '',
   title: '',
   listString: '',
+  excludeString: '',
   count: 5,
 })
 onMounted(() => {
@@ -47,10 +50,13 @@ onMounted(() => {
 
 function saveModal() {
   const list = tempConfig.value.listString?.split('\n').map(item => item.trim()).filter(Boolean) || []
+  const exclude = tempConfig.value.excludeString?.split('\n').map(item => item.trim()).filter(Boolean) || []
+  const filteredList = list.filter(item => !exclude.includes(item))
+
   const count = tempConfig.value.count || 5
-  if (list.length < count) {
+  if (filteredList.length < count) {
     // eslint-disable-next-line no-alert
-    alert(`列表项数量不足，至少需要 ${count} 项`)
+    alert(`列表项数量不足，至少需要 ${count} 项，当前剩余 ${filteredList.length} 项`)
     return
   }
   Object.assign(config, tempConfig.value)
@@ -63,13 +69,16 @@ const slicedResult = ref([])
 const intervalId = ref(null)
 function start() {
   const list = config.listString?.split('\n').map(item => item.trim()).filter(Boolean) || []
+  const exclude = config.excludeString?.split('\n').map(item => item.trim()).filter(Boolean) || []
+  const filteredList = list.filter(item => !exclude.includes(item))
   const count = config.count || 5
-  if (list.length < count) {
+  if (filteredList.length < count) {
     // eslint-disable-next-line no-alert
     alert(`列表项数量不足，至少需要 ${count} 项`)
     return
   }
-  result.value = [...list]
+
+  result.value = [...filteredList]
   if (!intervalId.value) {
     intervalId.value = setInterval(() => {
       const s = _.shuffle(result.value)
@@ -103,16 +112,28 @@ function end() {
   <NModalProvider>
     <div class="h-screen bg-gray-100 flex items-center justify-center">
       <div class="p-4 bg-white rounded-lg shadow w-3/4 h-3/4 flex flex-col">
-        <div class="text-center mb-4 text-4xl">
-          <img
-            v-if="config.logo?.startsWith('http://') || config.logo?.startsWith('https://')"
-            alt="logo"
-            :src="config.logo"
-          >
-          <span v-else>{{ config.logo }}</span>
-        </div>
-        <div class="text-2xl text-center mb-2">
-          {{ config.title }}
+        <div
+          class="flex justify-center items-center max-h-[80px]"
+          :class="config.title?.startsWith('http://') || config.title?.startsWith('https://') ? 'flex-row' : 'flex-col'"
+        >
+          <div class="text-center mb-4 text-4xl">
+            <img
+              v-if="config.logo?.startsWith('http://') || config.logo?.startsWith('https://')"
+              alt="logo"
+              :src="config.logo"
+              class="max-h-[80px]"
+            >
+            <span v-else>{{ config.logo }}</span>
+          </div>
+          <div class="text-center mb-4 text-4xl">
+            <NImage
+              v-if="config.title?.startsWith('http://') || config.logo?.startsWith('https://')"
+              alt="title"
+              :src="config.title"
+              height="80px"
+            />
+            <span v-else>{{ config.title }}</span>
+          </div>
         </div>
         <div class="flex justify-center items-center">
           <div class="flex gap-2">
@@ -176,6 +197,9 @@ function end() {
           </NFormItem>
           <NFormItem path="listString" label="列表（一行一个）">
             <NInput v-model:value="tempConfig.listString" type="textarea" />
+          </NFormItem>
+          <NFormItem path="excludeString" label="排除列表（一行一个）">
+            <NInput v-model:value="tempConfig.excludeString" type="textarea" />
           </NFormItem>
         </NForm>
         <template #footer>
