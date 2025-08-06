@@ -113,7 +113,7 @@ function end() {
     <div class="h-screen bg-gray-100 flex items-center justify-center">
       <div class="p-4 bg-white rounded-lg shadow w-3/4 h-3/4 flex flex-col">
         <div
-          class="flex justify-center items-center max-h-[80px]"
+          class="flex justify-center items-center"
           :class="config.title?.startsWith('http://') || config.title?.startsWith('https://') ? 'flex-row' : 'flex-col'"
         >
           <div class="text-center mb-4 text-4xl">
@@ -127,7 +127,7 @@ function end() {
           </div>
           <div class="text-center mb-4 text-4xl">
             <NImage
-              v-if="config.title?.startsWith('http://') || config.logo?.startsWith('https://')"
+              v-if="config.title?.startsWith('http://') || config.title?.startsWith('https://')"
               alt="title"
               :src="config.title"
               height="80px"
